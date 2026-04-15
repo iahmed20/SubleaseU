@@ -1,5 +1,6 @@
 // AddressForm.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import NavigationBar from './/Navbar.js'
@@ -7,12 +8,14 @@ import axios from "axios";
 
 
 function AddressForm() {
+  const navigate = useNavigate(); 
   const [address, setAddress] = useState('');
   const [rent, setRent] = useState('');
   const [img_address, setImageAddress] = useState('');
   const [description, setDescription] = useState('');
   const [email, setEmail] = useState('');
   const [custom_id, setCustomId] = useState('');
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +25,7 @@ function AddressForm() {
     console.log("generated id: ", id_string);
     setCustomId(id_string);
     console.log("added id: ", custom_id);
-
+    
     const listingData = {
       address,
       rent,
@@ -33,15 +36,18 @@ function AddressForm() {
     };
 
     try {
-      const response = await axios.post('/post-listing', listingData);
+      const response = await axios.post('http://localhost:8000/post-listing', listingData);
       console.log('Response from server:', response.data);
-  
+      
       setAddress('');
       setRent('');
       setImageAddress('');
       setDescription('');
       setEmail('');
       setCustomId('');
+
+      navigate('/');
+
     } catch (error) {
       console.error('Error sending data:', error);
     }
@@ -105,9 +111,8 @@ function AddressForm() {
         />
       </Form.Group>
 
-
       <Button variant="primary" type="submit">
-        Submit
+        sumbich
       </Button>
     </Form>
     </div>
