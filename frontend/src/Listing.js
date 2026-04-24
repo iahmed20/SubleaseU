@@ -1,53 +1,161 @@
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import React from 'react';
+import React, { useState } from 'react';
 import axios from "axios";
 
-// class Listing extends React.Component {
-//     constructor(props) {
-//         super(props);
-//         this.state = {
-//             img_address: "https://image.uhzcdn.com/house/88/efd286721ed3a94d8efb2bb8f066b68cc73a85.jpg?x-oss-process=image/resize,m_fill,w_1280,h_800,limit_0/interlace,1/quality,q_90/format,webp",
-//             email: "example@gmail.com",
-//             address: "1234 E Green St",
-//             description: "blah blah blah"
-//         }
-//     }
-//     render() {
-//         return (
-//             <Card style={{ width: '30rem' }} className="mx-auto" bg="light-blue">
-//                 <Card.Img variant="top" src={this.state.img_address} />
-//                 <Card.Body>
-//                     <Card.Title>{this.state.address}</Card.Title>
-//                     <Card.Text>{this.state.description}</Card.Text>
-//                     <Button variant="primary">{this.state.email}</Button>
-//                 </Card.Body>
-//             </Card>
-//         );
-//     }
-// }
-
 function Listing(props) {
-    const handleDelete = () => {
-        axios.delete(`/delete-listing/${props.custom_id}`)
-            .then(response => {
-                console.log('Listing deleted successfully');
-            })
-            .catch(error => {
-                console.error('Error deleting the listing', error);
-            });
-    };
+  const [deleted, setDeleted] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-    return (
-        <Card style={{ width: '50rem', backgroundColor: '#333333', boxShadow: '0 2px 4px rgba(0, 0, 0, 1)', padding: "10px"}} className="mx-auto mb-3 mt-3" bg="light-blue">
-            <Card.Img className="text-white" variant="top" src={props.img_address} />
-            <Card.Body>
-                <Card.Title className="text-white">{props.address} - ${props.rent}/month</Card.Title>
-                <Card.Text className="text-white">{props.description}</Card.Text>
-                <Button className="text-white" variant="primary">{props.email}</Button>
-            </Card.Body>
-        </Card>
-    );
+  const handleDelete = () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true); // first click: ask for confirmation
+      return;
+    }
+    axios.delete(`http://localhost:8000/delete-listing/${props.custom_id}`)
+      .then(() => {
+        setDeleted(true);
+        if (props.onDelete) props.onDelete(props.custom_id);
+      })
+      .catch(error => {
+        console.error('Error deleting listing:', error);
+      });
+  };
+
+  if (deleted) return null;
+
+  const cardStyle = {
+    backgroundColor: '#1a1a1a',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    marginBottom: '1.25rem',
+    display: 'flex',
+    flexDirection: 'row',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+  };
+
+  const imgStyle = {
+    width: '260px',
+    minWidth: '260px',
+    height: '200px',
+    objectFit: 'cover',
+    backgroundColor: '#2a2a2a',
+  };
+
+  const imgPlaceholderStyle = {
+    ...imgStyle,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'rgba(255,255,255,0.2)',
+    fontSize: '0.8rem',
+  };
+
+  const bodyStyle = {
+    padding: '1.25rem 1.5rem',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    flex: 1,
+  };
+
+  const rentStyle = {
+    color: '#ff6b35',
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    fontFamily: "'Georgia', serif",
+    marginBottom: '2px',
+  };
+
+  const addressStyle = {
+    color: 'white',
+    fontSize: '1rem',
+    fontWeight: '600',
+    marginBottom: '8px',
+  };
+
+  const badgeRowStyle = {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '10px',
+    flexWrap: 'wrap',
+  };
+
+  const badgeStyle = {
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    color: 'rgba(255,255,255,0.7)',
+    padding: '3px 10px',
+    borderRadius: '20px',
+    fontSize: '0.75rem',
+    fontWeight: '500',
+  };
+
+  const descStyle = {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: '0.875rem',
+    lineHeight: '1.5',
+    marginBottom: '12px',
+    flex: 1,
+  };
+
+  const footerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '8px',
+  };
+
+  const emailBtnStyle = {
+    background: 'rgba(255,107,53,0.15)',
+    border: '1px solid rgba(255,107,53,0.3)',
+    color: '#ff6b35',
+    padding: '6px 14px',
+    borderRadius: '6px',
+    fontSize: '0.8rem',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    fontWeight: '500',
+  };
+
+  const deleteBtnStyle = {
+    background: confirmDelete ? 'rgba(220,38,38,0.2)' : 'transparent',
+    border: confirmDelete ? '1px solid rgba(220,38,38,0.5)' : '1px solid rgba(255,255,255,0.1)',
+    color: confirmDelete ? '#f87171' : 'rgba(255,255,255,0.3)',
+    padding: '6px 14px',
+    borderRadius: '6px',
+    fontSize: '0.8rem',
+    cursor: 'pointer',
+    fontWeight: '500',
+    transition: 'all 0.2s',
+  };
+
+  return (
+    <div style={cardStyle}>
+      {props.img_address ? (
+        <img src={props.img_address} alt={props.address} style={imgStyle} />
+      ) : (
+        <div style={imgPlaceholderStyle}>No image</div>
+      )}
+      <div style={bodyStyle}>
+        <div>
+          <div style={rentStyle}>${props.rent}<span style={{fontSize:'1rem', color:'rgba(255,107,53,0.7)'}}>/mo</span></div>
+          <div style={addressStyle}>{props.address}</div>
+          <div style={badgeRowStyle}>
+            {props.bedrooms && <span style={badgeStyle}>🛏 {props.bedrooms} bed</span>}
+            {props.bathrooms && <span style={badgeStyle}>🚿 {props.bathrooms} bath</span>}
+          </div>
+          <div style={descStyle}>{props.description}</div>
+        </div>
+        <div style={footerStyle}>
+          <a href={`mailto:${props.email}`} style={emailBtnStyle}>✉ {props.email}</a>
+          <button style={deleteBtnStyle} onClick={handleDelete}>
+            {confirmDelete ? 'Confirm delete?' : 'Delete'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default Listing
+export default Listing;
