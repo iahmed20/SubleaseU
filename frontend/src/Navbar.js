@@ -1,11 +1,24 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext.js';
+import {
+  sendEmailVerification
+} from 'firebase/auth';
+
 
 function NavigationBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+   useEffect(() => {
+      if (user.emailVerified) {
+        console.log("User is verified");
+      } else {
+        sendEmailVerification(user)
+        console.log("Verification email sent");
+      }
+      }, []);
 
   const handleLogout = async () => {
     await logout();

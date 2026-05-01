@@ -35,6 +35,9 @@ function Home() {
     // Remove the deleted listing from state immediately (no need to re-fetch)
     setListings(prev => prev.filter(l => l.custom_id !== custom_id));
   };
+  const handleEdit = (custom_id) => {
+    setListings(prev => prev.filter(l => l.custom_id !== custom_id));
+  };
 
   const pageStyle = {
     background: "linear-gradient(160deg, #0d1b2e 0%, #1a0a00 100%)",
@@ -221,6 +224,8 @@ function Home() {
                 bedrooms={listing.bedrooms}
                 bathrooms={listing.bathrooms}
                 onDelete={handleDeleteListing}
+                onEdit={handleEdit}
+                uid = {listing.uid}
               />
             ))}
           </>

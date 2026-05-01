@@ -1,15 +1,36 @@
 import React, { useState } from 'react';
 import axios from "axios";
+import { useAuth } from './AuthContext.js';
+
 
 function Listing(props) {
+  const { user } = useAuth();
   const [deleted, setDeleted] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const isUser = (user?.uid === props.uid)
+  const [editing, setEditing] = useState(false);
+const [editData, setEditData] = useState({
+  address: props.address,
+  rent: props.rent,
+  description: props.description,
+  bedrooms: props.bedrooms,
+  bathrooms: props.bathrooms,
+});
+
+const handleSave = () => {
+  axios.put(`http://localhost:8000/edit-listing/${props.custom_id}`, editData)
+    .then(() => setEditing(false))
+    .catch(err => console.error(err));
+};
 
   const handleDelete = () => {
+
+    if (isUser) {
+
     if (!confirmDelete) {
-      setConfirmDelete(true); // first click: ask for confirmation
-      return;
+      setConfirmDelete(true);
     }
+
     axios.delete(`http://localhost:8000/delete-listing/${props.custom_id}`)
       .then(() => {
         setDeleted(true);
@@ -17,7 +38,7 @@ function Listing(props) {
       })
       .catch(error => {
         console.error('Error deleting listing:', error);
-      });
+      });}
   };
 
   if (deleted) return null;
@@ -139,19 +160,36 @@ function Listing(props) {
       )}
       <div style={bodyStyle}>
         <div>
-          <div style={rentStyle}>${props.rent}<span style={{fontSize:'1rem', color:'rgba(255,107,53,0.7)'}}>/mo</span></div>
-          <div style={addressStyle}>{props.address}</div>
-          <div style={badgeRowStyle}>
-            {props.bedrooms && <span style={badgeStyle}>🛏 {props.bedrooms} bed</span>}
-            {props.bathrooms && <span style={badgeStyle}>🚿 {props.bathrooms} bath</span>}
-          </div>
-          <div style={descStyle}>{props.description}</div>
+          {editing ? (
+                  <div>
+                    <input value={editData.address} onChange={(e) => setEditData({...editData, address: e.target.value})} />
+                    <input value={editData.rent} onChange={(e) => setEditData({...editData, rent: e.target.value})} />
+                    <input value={editData.description} onChange={(e) => setEditData({...editData, description: e.target.value})} />
+                  </div>
+                ) : (
+                  <div>
+                    <div style={rentStyle}>${props.rent}/mo</div>
+                    <div style={addressStyle}>{props.address}</div>
+                    <div style={descStyle}>{props.description}</div>
+                  </div>
+                )}
         </div>
         <div style={footerStyle}>
           <a href={`mailto:${props.email}`} style={emailBtnStyle}>✉ {props.email}</a>
+         
           <button style={deleteBtnStyle} onClick={handleDelete}>
             {confirmDelete ? 'Confirm delete?' : 'Delete'}
           </button>
+          {isUser && (
+            editing ? (
+              <>
+                <button onClick={handleSave}>Save</button>
+                <button onClick={() => setEditing(false)}>Cancel</button>
+              </>
+            ) : (
+              <button onClick={() => setEditing(true)}>Edit</button>
+            )
+          )}
         </div>
       </div>
     </div>

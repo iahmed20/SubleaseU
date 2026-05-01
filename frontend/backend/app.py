@@ -37,13 +37,13 @@ def get_data():
 
 @app.route('/listings')
 def get_listings():
-    # Read filters from query params: /listings?min=0&max=9999&bedrooms=2&bathrooms=1
+
     min_rent = int(request.args.get('min', 0))
     max_rent = int(request.args.get('max', 99999))
     bedrooms = request.args.get('bedrooms', None)
     bathrooms = request.args.get('bathrooms', None)
 
-    # Build MongoDB query
+    # mdb query
     query = {
         'rent': {'$gte': str(min_rent), '$lte': str(max_rent)}
     }
@@ -73,7 +73,7 @@ def get_listings():
         data = [item for item in data if item.get('bathrooms') == bathrooms]
 
     return Response(json.dumps(data), mimetype='application/json')
-
+    
 
 @app.route('/post-listing', methods=['POST'])
 def post_listing():
@@ -105,6 +105,11 @@ def delete_listing(id):
         return jsonify({'error': 'Listing not found'}), 404
     return jsonify({'message': 'Listing deleted'})
 
+@app.route('/edit-listing/<id>', methods=['PUT'])
+def edit_listing(id):
+    data = request.json
+    collection.update_one({'custom_id': id}, {'$set': data})
+    return jsonify({'message': 'Listing updated'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)

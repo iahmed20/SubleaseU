@@ -4,21 +4,21 @@ import { useAuth } from './AuthContext.js';
 import NavigationBar from './Navbar.js';
 import axios from "axios";
 
+
 function AddressForm() {
   const navigate = useNavigate();
   const { user } = useAuth();
-
+  
   const [address, setAddress] = useState('');
   const [rent, setRent] = useState('');
   const [img_address, setImageAddress] = useState('');
+  const uid = user?.uid || ''
   const [description, setDescription] = useState('');
   const [bedrooms, setBedrooms] = useState('');
   const [bathrooms, setBathrooms] = useState('');
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
-
-  // email is always the logged-in user's email — not editable
   const email = user?.email || '';
 
   const validate = () => {
@@ -46,7 +46,7 @@ function AddressForm() {
     setSubmitting(true);
 
     const custom_id = Math.floor(Math.random() * 1000000000).toString();
-    const listingData = { address, rent, img_address, description, email, bedrooms, bathrooms, custom_id };
+    const listingData = { address, rent, img_address, description, email, bedrooms, bathrooms, custom_id, uid};
 
     try {
       await axios.post('http://localhost:8000/post-listing', listingData);
@@ -87,7 +87,7 @@ function AddressForm() {
           {serverError && <div style={serverErrorStyle}>⚠ {serverError}</div>}
 
           <form onSubmit={handleSubmit} noValidate>
-
+             
             {/* Locked email field - auto-filled from Firebase */}
             <div style={groupStyle}>
               <label style={labelStyle}>Contact Email (your account)</label>
@@ -134,7 +134,7 @@ function AddressForm() {
               <label style={labelStyle}>Image URL</label>
               <input type="text" style={inputStyle(false)} placeholder="https://..." value={img_address} onChange={(e) => setImageAddress(e.target.value)} />
             </div>
-
+            
             <div style={groupStyle}>
               <label style={labelStyle}>Description</label>
               <textarea style={{ ...inputStyle(false), resize: 'vertical', minHeight: '90px' }} placeholder="Describe the unit, amenities, lease dates..." value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />

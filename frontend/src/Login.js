@@ -38,7 +38,7 @@ function Login() {
     setLoading(true);
     try {
       if (mode === 'signup') {
-        await createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth, email, password)
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -58,6 +58,7 @@ function Login() {
       setLoading(false);
     }
   };
+
 
   // ---- Styles ----
   const pageStyle = {
